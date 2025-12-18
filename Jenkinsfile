@@ -6,7 +6,7 @@ pipeline {
         MAVEN_HOME = tool name: 'maven', type: 'maven'
         DOCKER_IMAGE = "demo-app:${env.BUILD_NUMBER}"
         K8S_NAMESPACE = "default"
-        JAVA_HOME = '/usr/lib/jvm/java-11-openjdk-amd64'  // Must match your java -version
+        JAVA_HOME = '/usr/lib/jvm/java-17-openjdk-amd64'
         PATH = "${JAVA_HOME}/bin:${env.PATH}"
         SONAR_HOST_URL = 'http://56.228.7.5:9000'       // Your SonarQube URL
         SONAR_AUTH_TOKEN = credentials('sonarqube')  // Jenkins credential ID for SonarQube token
