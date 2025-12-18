@@ -9,7 +9,7 @@ pipeline {
 
     stage('Checkout') {
       steps {
-        git 'https://github.com/pavi426/Sonarqube-deploy.git'
+        git branch: 'main', url: 'https://github.com/pavi426/Sonarqube-deploy.git'
       }
     }
 
