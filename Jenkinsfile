@@ -2,14 +2,14 @@ pipeline {
     agent any
 
     environment {
-        SONARQUBE = 'SonarQube'                     // Name of your SonarQube server in Jenkins config
+        SONARQUBE = 'SonarQube'                     // Jenkins SonarQube server name
         MAVEN_HOME = tool name: 'maven', type: 'maven'
         DOCKER_IMAGE = "demo-app:${env.BUILD_NUMBER}"
         K8S_NAMESPACE = "default"
         JAVA_HOME = '/usr/lib/jvm/java-17-openjdk-amd64'
         PATH = "${JAVA_HOME}/bin:${env.PATH}"
         SONAR_HOST_URL = 'http://56.228.7.5:9000'       // Your SonarQube URL
-        SONAR_AUTH_TOKEN = credentials('sonarqube')  // Jenkins credential ID for SonarQube token
+        SONAR_AUTH_TOKEN = credentials('sonarqube')     // Jenkins credential ID for SonarQube token
     }
 
     stages {
@@ -21,18 +21,17 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('SonarQube') { // Jenkins SonarQube server name
-                    sh """
-                ${MAVEN_HOME}/bin/mvn clean verify sonar:sonar \
-                -Dsonar.projectKey=demo \
-                -Dsonar.host.url=${SONARQUBE_URL} \
-                -Dsonar.login=${SONARQUBE_AUTH_TOKEN} \
-                -Dsonar.java.binaries=target/classes
-            """
+                withSonarQubeEnv('SonarQube') {
+                    sh """\
+                        ${MAVEN_HOME}/bin/mvn clean verify sonar:sonar \
+                        -Dsonar.projectKey=demo \
+                        -Dsonar.host.url=${SONAR_HOST_URL} \
+                        -Dsonar.login=${SONAR_AUTH_TOKEN} \
+                        -Dsonar.java.binaries=target/classes
+                    """
+                }
+            }
         }
-    }
-}
-
 
         stage('Quality Gate') {
             steps {
