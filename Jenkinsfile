@@ -23,12 +23,12 @@ pipeline {
             steps {
                 withSonarQubeEnv('SonarQube') {
                     sh """
-                        ${MAVEN_HOME}/bin/mvn clean verify sonar:sonar \
-                        -Dsonar.projectKey=demo \
-                        -Dsonar.host.url=${SONAR_HOST_URL} \
-                        -Dsonar.login=${SONAR_AUTH_TOKEN} \
-                        -Dsonar.java.binaries=target/classes \
-                        -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+                ${MAVEN_HOME}/bin/mvn clean verify sonar:sonar \
+                -Dsonar.projectKey=demo \
+                -Dsonar.host.url=${SONAR_HOST_URL} \
+                -Dsonar.login=${SONAR_AUTH_TOKEN} \
+                -Dsonar.java.binaries=target/classes \
+                -Dsonar.coverage.jacoco.xmlReportPaths=target/jacoco-report/jacoco.xml
                     """
                 }
             }
