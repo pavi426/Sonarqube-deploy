@@ -21,16 +21,18 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('SonarQube') { // Must match Jenkins SonarQube server name
+                withSonarQubeEnv('SonarQube') { // Jenkins SonarQube server name
                     sh """
-                        ${MAVEN_HOME}/bin/mvn clean verify sonar:sonar \
-                        -Dsonar.projectKey=demo \
-                        -Dsonar.host.url=${SONAR_HOST_URL} \
-                        -Dsonar.login=${SONAR_AUTH_TOKEN}
-                    """
-                }
-            }
+                ${MAVEN_HOME}/bin/mvn clean verify sonar:sonar \
+                -Dsonar.projectKey=demo \
+                -Dsonar.host.url=${SONARQUBE_URL} \
+                -Dsonar.login=${SONARQUBE_AUTH_TOKEN} \
+                -Dsonar.java.binaries=target/classes
+            """
         }
+    }
+}
+
 
         stage('Quality Gate') {
             steps {
