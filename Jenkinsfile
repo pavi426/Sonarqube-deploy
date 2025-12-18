@@ -9,7 +9,7 @@ pipeline {
 
     stage('Checkout') {
       steps {
-        git 'https://github.com/your-repo/springboot-app.git'
+        git 'https://github.com/pavi426/Sonarqube-deploy.git'
       }
     }
 
