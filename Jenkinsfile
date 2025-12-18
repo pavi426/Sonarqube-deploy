@@ -7,7 +7,7 @@ pipeline {
         DOCKER_IMAGE = "demo-app:${env.BUILD_NUMBER}"
         K8S_NAMESPACE = "default"
         JAVA_HOME = '/usr/lib/jvm/java-17-openjdk-amd64'
-        PATH = "${JAVA_HOME}/bin:${env.PATH}
+        PATH = "${JAVA_HOME}/bin:${env.PATH}"
     }
 
     stages {
