@@ -6,7 +6,7 @@ pipeline {
         MAVEN_HOME = tool name: 'maven', type: 'maven'
         DOCKER_IMAGE = "demo-app:${env.BUILD_NUMBER}"
         K8S_NAMESPACE = "default"
-        JAVA_HOME = '/usr/lib/jvm/java-17-openjdk-amd64'
+        JAVA_HOME = '/usr/lib/jvm/java-11-openjdk-amd64' // match your java -version
         PATH = "${JAVA_HOME}/bin:${env.PATH}"
     }
 
@@ -19,8 +19,12 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv(SONARQUBE) {
-                    sh "${MAVEN_HOME}/bin/mvn clean verify sonar:sonar"
+                withSonarQubeEnv('SonarQube') {  // must match Jenkins SonarQube server name
+            sh """
+                ${MAVEN_HOME}/bin/mvn clean verify sonar:sonar \
+                -Dsonar.projectKey=demo \
+                -Dsonar.host.url=${SONARQUBE_URL} \
+                -Dsonar.login=${SONARQUBE_AUTH_TOKEN}
                 }
             }
         }
