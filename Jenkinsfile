@@ -15,15 +15,13 @@ pipeline {
     }
 
     stage('SonarQube Analysis') {
-      steps {
-        withCredentials([string(credentialsId: 'sonartoken-id', variable: 'SONAR_TOKEN')]) {
-          sh '''
-            mvn clean verify sonar:sonar \
-            -Dsonar.login=$SONAR_TOKEN
-          '''
+    steps {
+        withSonarQubeEnv('SonarQube') {
+            sh 'mvn clean verify sonar:sonar'
         }
-      }
     }
+}
+
 
     stage('Quality Gate') {
       steps {
