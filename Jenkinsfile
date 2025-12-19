@@ -43,7 +43,7 @@ pipeline {
           sh """
             curl -v -u $NEXUS_USER:$NEXUS_PASS \
             --upload-file target/demo-1.0.jar \
-            http://16.171.200.176:8081/repository/maven-releases/demo-1.0.jar
+            http://16.171.200.176:8081/repository/maven-releases123/
           """
         }
       }
