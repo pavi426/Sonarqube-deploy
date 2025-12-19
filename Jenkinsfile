@@ -1,71 +1,65 @@
 pipeline {
-    agent any
+  agent any
 
-    environment {
-        SONARQUBE = 'SonarQube'                     // Jenkins SonarQube server name
-        MAVEN_HOME = tool name: 'maven', type: 'maven'
-        DOCKER_IMAGE = "demo-app:${env.BUILD_NUMBER}"
-        K8S_NAMESPACE = "default"
-        JAVA_HOME = '/usr/lib/jvm/java-17-openjdk-amd64'
-        PATH = "${JAVA_HOME}/bin:${env.PATH}"
-        SONAR_HOST_URL = 'http://56.228.7.5:9000'       // SonarQube URL
-        SONAR_AUTH_TOKEN = credentials('sonarqube')    // Jenkins credential ID
+  tools {
+    maven 'maven'
+  }
+
+  stages {
+
+    stage('Checkout') {
+      steps {
+        git 'https://github.com/your-repo/springboot-app.git'
+      }
     }
 
-    stages {
-        stage('Checkout') {
-            steps {
-                git branch: 'main', url: 'https://github.com/pavi426/Sonarqube-deploy.git'
-            }
+    stage('SonarQube Analysis') {
+      steps {
+        withSonarQubeEnv('SonarQube') {
+          sh 'mvn clean verify sonar:sonar'
         }
-
-        stage('SonarQube Analysis') {
-            steps {
-                withSonarQubeEnv('SonarQube') {
-                    sh """
-                ${MAVEN_HOME}/bin/mvn clean verify sonar:sonar \
-                -Dsonar.projectKey=demo \
-                -Dsonar.host.url=${SONAR_HOST_URL} \
-                -Dsonar.login=${SONAR_AUTH_TOKEN} \
-                -Dsonar.java.binaries=target/classes \
-                -Dsonar.coverage.jacoco.xmlReportPaths=target/jacoco-report/jacoco.xml
-                    """
-                }
-            }
-        }
-
-        stage('Quality Gate') {
-            steps {
-                timeout(time: 5, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
-                }
-            }
-        }
-
-        stage('Build & Deploy to Nexus') {
-            steps {
-                sh "${MAVEN_HOME}/bin/mvn clean deploy -s /var/lib/jenkins/.m2/settings.xml"
-            }
-        }
-
-        stage('Docker Build & Push') {
-            steps {
-                script {
-                    docker.build(DOCKER_IMAGE)
-                    docker.withRegistry('http://localhost:5000', 'docker-credentials') {
-                        docker.image(DOCKER_IMAGE).push()
-                    }
-                }
-            }
-        }
-
-        stage('Deploy to Kubernetes') {
-            steps {
-                sh """
-                    kubectl apply -f k8s/deployment.yaml -n ${K8S_NAMESPACE}
-                    kubectl apply -f k8s/service.yaml -n ${K8S_NAMESPACE}
-                """
-            }
-        }
+      }
     }
+
+    stage('Quality Gate') {
+      steps {
+        timeout(time: 2, unit: 'MINUTES') {
+          waitForQualityGate abortPipeline: true
+        }
+      }
+    }
+
+    stage('Build') {
+      steps {
+        sh 'mvn clean package'
+      }
+    }
+
+    stage('Upload to Nexus') {
+      steps {
+        sh '''
+        mvn deploy \
+        -DaltDeploymentRepository=nexus::default::http://localhost:8081/repository/maven-releases/
+        '''
+      }
+    }
+
+    stage('Docker Build & Push') {
+      steps {
+        sh '''
+        docker build -t yourdockerhub/demo:1.0 .
+        docker push yourdockerhub/demo:1.0
+        '''
+      }
+    }
+
+    stage('Deploy to Kubernetes') {
+      steps {
+        sh '''
+        kubectl apply -f k8s/deployment.yaml
+        kubectl apply -f k8s/service.yaml
+        '''
+      }
+    }
+  }
 }
