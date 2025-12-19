@@ -9,14 +9,17 @@ pipeline {
 
     stage('Checkout') {
       steps {
-        git 'https://github.com/your-repo/springboot-app.git'
+        git 'https://github.com/pavi426/springboot-app.git'
       }
     }
 
     stage('SonarQube Analysis') {
       steps {
-        withSonarQubeEnv('SonarQube') {
-          sh 'mvn clean verify sonar:sonar'
+        withCredentials([string(credentialsId: 'sonartoken-id', variable: 'SONAR_TOKEN')]) {
+            sh '''
+                mvn clean verify sonar:sonar \
+                -Dsonar.login=$SONAR_TOKEN
+            '''
         }
       }
     }
@@ -37,10 +40,12 @@ pipeline {
 
     stage('Upload to Nexus') {
       steps {
-        sh '''
-        mvn deploy \
-        -DaltDeploymentRepository=nexus::default::http://localhost:8081/repository/maven-releases/
-        '''
+        withCredentials([usernamePassword(credentialsId: 'nexus-creds', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
+    sh """
+        curl -v -u $NEXUS_USER:$NEXUS_PASS \
+        --upload-file target/my-app.jar \
+        http://<NEXUS_HOST>:8081/repository/maven-releases/my-app.jar
+    """
       }
     }
 
