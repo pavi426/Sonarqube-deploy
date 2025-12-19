@@ -44,7 +44,7 @@ pipeline {
           sh """
             curl -v -u $NEXUS_USER:$NEXUS_PASS \
             --upload-file target/my-app.jar \
-            http://<NEXUS_HOST>:8081/repository/maven-releases/my-app.jar
+            http://16.171.200.176:8081/repository/maven-releases/my-app.jar
           """
         }
       }
