@@ -9,6 +9,14 @@
     <java.version>17</java.version>
   </properties>
 
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>3.2.0</version> <!-- choose the version you want -->
+    <relativePath/> <!-- lookup parent from repository -->
+</parent>
+
+
   <dependencies>
     <dependency>
       <groupId>org.springframework.boot</groupId>
