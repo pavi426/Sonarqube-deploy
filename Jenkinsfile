@@ -51,13 +51,21 @@ pipeline {
     }
 
     stage('Docker Build & Push') {
-      steps {
-        sh '''
-          docker build -t yourdockerhub/demo:1.0 .
-          docker push yourdockerhub/demo:1.0
-        '''
-      }
+  steps {
+    withCredentials([usernamePassword(
+      credentialsId: 'dockerhub-creds',
+      usernameVariable: 'DOCKER_USER',
+      passwordVariable: 'DOCKER_PASS'
+    )]) {
+      sh '''
+        docker login -u $DOCKER_USER -p $DOCKER_PASS
+        docker build -t $DOCKER_USER/demo:1.0 .
+        docker push $DOCKER_USER/demo:1.0
+      '''
     }
+  }
+}
+
 
     stage('Deploy to Kubernetes') {
       steps {
